@@ -1,7 +1,7 @@
 isitbullshit
 ============
 
-small library for verifying parsed JSONs if they are bullshit or not
+This is small library for verifying parsed JSONs if they are bullshit or not
 
 It has 2 cool features: `isitbullshit` function and `IsItBullshitMixin` for `unittest.TestCase`.
 
@@ -23,10 +23,10 @@ example:
 >>>
 ```
 
-Okay, let's figure out our suspicions. We expect dictionary parse
+Okay, let's figure out our suspicions. We expect dictionary parsed
 from JSON, this is good. Schema is dictionary so it means that `data`
-has to be dictionary, no lists, arrays and whatever you want. JSON
-payload we are expecting should include 2 keys, _hello_ and _world_.
+has to be a dictionary, not lists, arrays and whatever you (don't) want. JSON
+payload should include 2 keys, _hello_ and _world_.
 _Hello_ has to be string and world is _int_. Damn, it was simple and good.
 Now let's cast that schema on some example data.
 
@@ -35,16 +35,15 @@ Now let's cast that schema on some example data.
 True
 ```
 
-Yeah, this is bullshit. Payload is `[]` but you expecting something more
-interesting
+Yeah, this is bullshit. Payload is `[]` but you probably expecting something more interesting
 
 ```python
 >>> print isitbullshit({'hello': 'no', 'world': None}, schema)
 True
 ```
 
-See? World is None, incoming JSON was `{"hello": "no", "world": null}`
-so there. So, bullshit. We are waiting for something pretty much more
+See? _World_ is None, incoming JSON was `{"hello": "no", "world": null}`
+so there. So, bullshit. We are waiting for something pretty much
 interesting.
 
 ```python
@@ -62,11 +61,11 @@ Finally, no bullshits. Let's go further.
 >>>
 ```
 
-Please step back and be write down that `isitbullshit` differs tuples
+Please step back and write down that `isitbullshit` differs tuples
 and lists since there is not library which decodes JSON arrays to Python
-lists. So what does tuple (or set/frozenset) means for that function? It
-defines multiple choice. So _world_ might be `float`, `bool`, `None` or
-exact `1`. Pretty convenient, huh? Let's checkout some previous example.
+lists. So what does tuple (or set/frozenset) mean for that function? It
+defines multiple choices. So _world_ might be `float`, `bool`, `None` or
+exact `1`. Pretty convenient, huh? Let's checkout the previous example.
 
 ```python
 >>> print isitbullshit({'hello': 'no', 'world': None}, schema)
@@ -91,7 +90,7 @@ they have elements with the same type. if it does not work for you, scroll
 down to the next example. Otherwise, checkout.
 
 You can put a lot of elements in the list (please distinct tuples and
-lists) but actually only first element would be used and it would be used
+lists here) but actually only first element would be used and it would be used
 to check a type of each element in a list. Enough words, grab a code.
 
 ```python
