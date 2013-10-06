@@ -220,7 +220,7 @@ def _isitbullshit_rec(data, schema):
         if not (isinstance(data, int) and data == schema):
             raise AssertionError
 
-    elif isinstance(data, float):
+    elif isinstance(schema, float):
         success = (
             isinstance(data, float) and
             abs(data - schema) <= float_info.epsilon
