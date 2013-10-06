@@ -130,4 +130,20 @@ False
 True
 ```
 
+What else? Library has pretty useful mixin for your `unittest.TestCase` which adds 2 assert methods, `assertBullshit`
+and `assertNotBullshit`. This mixin called `IsItBullshitMixin` and you can use it like this:
+
+```python
+from isitbullshit import IsItBullshitMixin
+from unittest import TestCase
+
+
+class IsItBullshitTestCase (TestCase, IsItBullshitMixin):
+
+    def test_none(self):
+        self.assertNoBullshit(None, None)
+        self.assertBullshit(None, [])
+        self.assertBullshit(None, '')
+```
+
 You got it. Happy coding.
