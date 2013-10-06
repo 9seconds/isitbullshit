@@ -116,8 +116,7 @@ validators. Let's implement, for example, range validator
 ````python
 >>> def range_validator(min_=None, max_=None):
 ...     def validator(element):
-...         if not isinstance(element, int):
-...             raise AssertionError
+...         assert isinstance(element, int)
 ...         if min_ is not None:
 ...             assert min_ <= element
 ...         if max_ is not None:
