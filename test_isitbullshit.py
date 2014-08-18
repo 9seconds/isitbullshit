@@ -226,3 +226,16 @@ def test_custom_callable():
 
     positive("1", validator_ok)
     negative("1", validator_nok)
+
+
+def test_string_itisbullshiterror():
+    key_error = ItIsBullshitError("3 line", "Key Error")
+    second_error = ItIsBullshitError("2 line", key_error)
+    first_error = ItIsBullshitError("3 line", second_error)
+
+    output = unicode(first_error)
+    output = [line.strip() for line in output.split("\n")]
+    assert ["3 line:", "2 line:", "3 line: Key Error"] == output
+
+    repr(first_error)
+    str(first_error)
