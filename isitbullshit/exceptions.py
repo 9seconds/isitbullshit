@@ -6,6 +6,8 @@ class ItIsBullshitError(ValueError):
     __slots__ = ("line", "cause")
 
     def __init__(self, line, cause):
+        super(ItIsBullshitError, self).__init__()
+
         self.line = unicode(line) + ": "
         self.cause = cause
 

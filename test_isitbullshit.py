@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 
-import decimal
 import sys
 
 import pytest
@@ -53,6 +52,7 @@ def test_numbers():
     positive(1, 1.0)
 
 
+# noinspection PySetFunctionToLiteral
 @pytest.mark.parametrize("input_", (
     1,
     1.0,
@@ -95,6 +95,7 @@ def test_multiple_validators_in_list():
         with pytest.raises(ValueError):
             func({"data": 1, "time": 2}, [1, 2, 3, 4])
 
+
 @pytest.mark.parametrize("input_", (
     1, 1.0, [1], {"1": 1}, (1,), "", u"",
     set([]), frozenset([]), object(), pytest,
@@ -115,6 +116,7 @@ def test_dict_small_subset():
         dict((idx, idx) for idx in xrange(10)),
         dict((idx, idx) for idx in xrange(5))
     )
+
 
 @pytest.mark.parametrize("input_", (
     1, 1.0, [1], {"1": 1}, (1,), "", u"",
@@ -218,11 +220,13 @@ def test_not_float(input_):
 
 
 def test_custom_callable():
+    # noinspection PyUnusedLocal
     def validator_ok(input_):
         return 1
 
+    # noinspection PyUnusedLocal
     def validator_nok(input_):
-        raise ItIsBullshitError("Test")
+        raise ItIsBullshitError("Test", "Test")
 
     positive("1", validator_ok)
     negative("1", validator_nok)

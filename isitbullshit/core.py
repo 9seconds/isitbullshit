@@ -18,7 +18,7 @@ def isitbullshit(element, scheme):
     return False
 
 
-def raise_for_problem(element, scheme):
+def raise_for_problem(element, scheme):  # pylint: disable=R0912
     if element == scheme or element is scheme or scheme is WHATEVER:
         return
 
@@ -63,8 +63,10 @@ def raise_for_problem(element, scheme):
     elif isinstance(scheme, basestring):
         if not isinstance(element, basestring):
             raise ItIsBullshitError(element, u"Should be a string")
+        # noinspection PyTypeChecker
         if re.match(scheme, element, re.UNICODE) is None:
-            raise ItIsBullshitError(element, u"Regex mismatch: {}".format(scheme))
+            raise ItIsBullshitError(element,
+                                    u"Regex mismatch: {}".format(scheme))
 
     elif isinstance(scheme, float):
         if not isinstance(element, float):
