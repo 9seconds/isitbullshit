@@ -10,7 +10,7 @@ class IsItBullshitMixin(object):
     @staticmethod
     def assertBullshit(data, scheme, reason=None):
         if not isitbullshit(data, scheme):
-            raise AssertionError(reason)
+            raise AssertionError(unicode(reason))
 
     @staticmethod
     def assertNotBullshit(data, scheme, reason=None):
@@ -18,5 +18,5 @@ class IsItBullshitMixin(object):
             raise_for_problem(data, scheme)
         except ItIsBullshitError as err:
             if reason is None:
-                reason = unicode(err)
-            raise AssertionError(reason)
+                reason = err
+            raise AssertionError(unicode(reason))

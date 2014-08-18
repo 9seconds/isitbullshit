@@ -1,0 +1,9 @@
+# Requirements for isitbullshit
+
+# Package requirements
+# No requirements! :)
+
+# Test requirements
+pytest==2.6.1
+pytest-cov==1.7.0
+prospector==0.5.6
