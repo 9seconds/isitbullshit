@@ -2,54 +2,227 @@
 # -*- coding: utf-8 -*-
 
 
+import decimal
+import sys
+
 import pytest
 
 from isitbullshit import isitbullshit, raise_for_problem, IsItBullshitMixin, \
-    ItIsBullshitError
+    ItIsBullshitError, WHATEVER
+
+
+def positive(element, scheme):
+    assert not isitbullshit(element, scheme)
+
+    IsItBullshitMixin.assertNotBullshit(element, scheme)
+    with pytest.raises(AssertionError):
+        IsItBullshitMixin.assertBullshit(element, scheme)
+    raise_for_problem(element, scheme)
+
+
+def negative(element, scheme):
+    assert isitbullshit(element, scheme)
+
+    IsItBullshitMixin.assertBullshit(element, scheme)
+    with pytest.raises(AssertionError):
+        IsItBullshitMixin.assertNotBullshit(element, scheme)
+    with pytest.raises(ItIsBullshitError):
+        raise_for_problem(element, scheme)
 
 
 @pytest.mark.parametrize("input_", (
-    int, float, dict, list, tuple, str, unicode, set, frozenset,
-    1, 1.0, {}, [], tuple(), "hello", u"hello", "",
-    [1, 2], {3: 4}, (5, 6), {"hello": 1}, {"1": 1},
+    1, 1.0, {"1": 1}, [1], (1,), "", u"",
+    set([]), frozenset([]), object(), pytest,
     True, False, None
 ))
-def test_self_notbullshit(input_):
-    assert not isitbullshit(input_, input_)
+def test_is(input_):
+    positive(input_, input_)
 
-    IsItBullshitMixin.assertNotBullshit(input_, input_)
-    with pytest.raises(AssertionError):
-        IsItBullshitMixin.assertBullshit(input_, input_)
-    raise_for_problem(input_, input_)
-
-
-@pytest.mark.parametrize("value_, type_", (
-    (1, int),
-    (1.0, float),
-    ({}, dict),
-    (tuple(), tuple),
-    ([1, 2], list),
-    ("", str),
-    (u"", unicode),
-    (None, None)
-))
-def test_simple_types_notbullshit(value_, type_):
-    assert not isitbullshit(value_, type_)
-
-    IsItBullshitMixin.assertNotBullshit(value_, type_)
-    with pytest.raises(AssertionError):
-        IsItBullshitMixin.assertBullshit(value_, type_)
-    raise_for_problem(value_, type_)
 
 @pytest.mark.parametrize("input_", (
-    int, float, str, unicode, list, dict, tuple, set, frozenset
+    1, 1.0, {"1": 1}, [1], (1,), "", u"",
+    set([]), frozenset([]), object(), pytest,
+    True, False, None
 ))
-def test_value_bullshit(input_):
-    from pdb import set_trace; set_trace()
-    types = set((int, float, str, unicode, list, dict, tuple, set, frozenset))
-    types -= set([input_])
+def test_not_is(input_):
+    negative(input_, object())
 
-    for type_ in types:
-        assert isitbullshit(input_(), type_)
-        assert isitbullshit(type_(), input_)
-        assert isitbullshit(type_(), input_())
+
+def test_numbers():
+    positive(1.0, 1)
+    positive(1, 1.0)
+
+
+@pytest.mark.parametrize("input_", (
+    1,
+    1.0,
+    {}, {"1": 1}, {"1": 1, "2": 1},
+    [], [1], [1, "1"],
+    tuple(), (1,), (1, "2"),
+    set([]), set([1]), set([1, 2]),
+    frozenset([]), frozenset([1]), frozenset([1, 2]),
+    object(), pytest,
+    "", "1",
+    u"", u"1"
+))
+def test_whatever(input_):
+    positive(input_, WHATEVER)
+
+
+@pytest.mark.parametrize("input_", (
+    list, dict, tuple
+))
+def test_empty_schemas(input_):
+    funcs = (
+        isitbullshit,
+        IsItBullshitMixin.assertBullshit,
+        IsItBullshitMixin.assertNotBullshit,
+        raise_for_problem
+    )
+    for func in funcs:
+        with pytest.raises(ValueError):
+            func({"data": 1, "time": 2}, input_())
+
+
+def test_multiple_validators_in_list():
+    funcs = (
+        isitbullshit,
+        IsItBullshitMixin.assertBullshit,
+        IsItBullshitMixin.assertNotBullshit,
+        raise_for_problem
+    )
+    for func in funcs:
+        with pytest.raises(ValueError):
+            func({"data": 1, "time": 2}, [1, 2, 3, 4])
+
+@pytest.mark.parametrize("input_", (
+    1, 1.0, [1], {"1": 1}, (1,), "", u"",
+    set([]), frozenset([]), object(), pytest,
+    True, False, None
+))
+def test_dict_incorrect_types(input_):
+    validators = (
+        {1: 1},
+        {"1": 2},
+        {"1": 1, 2: 2}
+    )
+    for validator in validators:
+        negative(input_, validator)
+
+
+def test_dict_small_subset():
+    positive(
+        dict((idx, idx) for idx in xrange(10)),
+        dict((idx, idx) for idx in xrange(5))
+    )
+
+@pytest.mark.parametrize("input_", (
+    1, 1.0, [1], {"1": 1}, (1,), "", u"",
+    set([]), frozenset([]), object(), pytest,
+    True, False, None
+))
+def test_list_incorrect_types(input_):
+    validators = (
+        [2],
+        [object()],
+        [{"ohai": 1}]
+    )
+    for validator in validators:
+        negative(input_, validator)
+
+
+@pytest.mark.parametrize("input_, validator_", (
+    (list(xrange(10)), [int]),
+    ([1.0, 2.0], [float]),
+    ([pytest, pytest, pytest], [pytest]),
+    ([1, 1, 1, 1, 1], [1])
+))
+def test_list_simple_validator(input_, validator_):
+    positive(input_, validator_)
+
+
+@pytest.mark.parametrize("input_, validator_", (
+    ({"foo": 1, "bar": 2}, {"foo": 1}),
+    ({"foo": 1, "bar": 2}, {"foo": int}),
+    ({"foo": 1, "bar": 2}, {"foo": 1, "bar": 2}),
+    ({"foo": 1, "bar": 2}, {"foo": 1, "bar": int}),
+    ({"foo": 1, "bar": 2}, {"foo": int, "bar": int}),
+    ({"foo": [1], "bar": 2}, {"foo": [int], "bar": int}),
+    ({"foo": [1, 2], "bar": 2}, {"foo": [int], "bar": int}),
+    ({"foo": [1, 2], "bar": 2}, {"foo": [1, 2], "bar": 2}),
+))
+def test_list_complex_validator(input_, validator_):
+    positive(input_, validator_)
+
+
+@pytest.mark.parametrize("input_, validator_, type_", (
+    (1, (None, 1), True),
+    (None, (None, 1), True),
+    ([1], (object(), 1), False),
+    ([1], (object(), 1, [1]), True),
+    ([1], (object(), 1, [int]), True),
+    ([1], (object(), [int], [int]), True),
+    ([1], (object(), [int], 1), True),
+    ([1], ([int], object(), 1), True),
+    ([1], (object(), int, [int]), True),
+    ([1], (object(), int), False)
+))
+def test_tuple_validator(input_, validator_, type_):
+    func = positive if type_ else negative
+    func(input_, validator_)
+
+
+@pytest.mark.parametrize("input_, result_", (
+    ("hello", True),
+    ("hello_", False),
+    (u"hello", True),
+    (object(), False),
+    (r"^hello", True),
+    (r"hello$", True),
+    (r"^hello$", True),
+    (r"hel{2}o$", True),
+    (r"\w+o$", True),
+    (r"h.*l", True)
+))
+def test_string(input_, result_):
+    func = positive if result_ else negative
+    func("hello", input_)
+
+
+@pytest.mark.parametrize("input_", (
+    1, 1.0, [1], {"1": 1}, (1,),
+    set([]), frozenset([]), object(), pytest,
+    True, False, None
+))
+def test_not_string(input_):
+    negative(input_, "hello")
+
+
+@pytest.mark.parametrize("input_, result_", (
+    (1.0, True),
+    (1.0 + sys.float_info.epsilon, False),
+    (1.0 - sys.float_info.epsilon, False),
+))
+def test_float(input_, result_):
+    func = positive if result_ else negative
+    func(1.0, input_)
+
+
+@pytest.mark.parametrize("input_", (
+    2, 2.0, [1], {"1": 1}, (1,),
+    set([]), frozenset([]), object(), pytest,
+    True, False, None
+))
+def test_not_float(input_):
+    negative(input_, 10.0)
+
+
+def test_custom_callable():
+    def validator_ok(input_):
+        return 1
+
+    def validator_nok(input_):
+        raise ItIsBullshitError("Test")
+
+    positive("1", validator_ok)
+    negative("1", validator_nok)

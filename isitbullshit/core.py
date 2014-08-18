@@ -7,58 +7,76 @@ import re
 from .exceptions import ItIsBullshitError
 
 
+WHATEVER = object()
+
+
 def isitbullshit(element, scheme):
     try:
         raise_for_problem(element, scheme)
     except ItIsBullshitError:
         return True
-    else:
-        return False
+    return False
 
 
 def raise_for_problem(element, scheme):
+    if element == scheme or element is scheme or scheme is WHATEVER:
+        return
+
     if isinstance(scheme, dict):
+        if not scheme:
+            raise ValueError(u"Dict scheme should contain at least 1 element")
         if not isinstance(element, dict):
-            raise ItIsBullshitError(element, "Type mismatch, should be a dict")
+            raise ItIsBullshitError(element,
+                                    u"Type mismatch, should be a dict")
         for key, validator in scheme.iteritems():
             if key not in element:
-                raise ItIsBullshitError(element, "Missed key {0}".format(key))
+                raise ItIsBullshitError(element,
+                                        u"Missed key {0}".format(key))
             raise_for_problem(element[key], validator)
 
     elif isinstance(scheme, list):
+        if not scheme:
+            raise ValueError(u"List scheme should contain at least 1 element")
+        if len(scheme) != 1:
+            raise ValueError(u"List scheme should contain only 1 element")
         if not isinstance(element, (tuple, list)):
-            raise ItIsBullshitError(element, "Type mismatch, should be list or tuple")
+            raise ItIsBullshitError(element,
+                                    u"Type mismatch, should be list or tuple")
         if scheme:
             for item in element:
                 raise_for_problem(item, scheme[0])
 
     elif isinstance(scheme, tuple):
+        if not scheme:
+            raise ValueError(u"Tuple scheme should contain at least 1 element")
         error = None
         for type_validator in scheme:
             try:
                 raise_for_problem(element, type_validator)
+                break
             except ItIsBullshitError as err:
                 error = err
-        if error is not None:
-            raise ItIsBullshitError(element, error)
+        else:
+            if error is not None:
+                raise ItIsBullshitError(element, error)
 
     elif isinstance(scheme, basestring):
         if not isinstance(element, basestring):
-            raise ItIsBullshitError(element, "Should be a string")
+            raise ItIsBullshitError(element, u"Should be a string")
         if re.match(scheme, element, re.UNICODE) is None:
-            raise ItIsBullshitError(element, "Regex mismatch: {}".format(scheme))
+            raise ItIsBullshitError(element, u"Regex mismatch: {}".format(scheme))
 
     elif isinstance(scheme, float):
         if not isinstance(element, float):
-            raise ItIsBullshitError(element, "Should be a float")
-        if abs(element - scheme) > sys.float_info.epsilon:
-            raise ItIsBullshitError(element, "Should be {0}".format(scheme))
-
-    elif element == scheme or element is scheme:
-        return
+            raise ItIsBullshitError(element, u"Should be a float")
+        if abs(element - scheme) >= sys.float_info.epsilon:
+            raise ItIsBullshitError(element, u"Should be {0}".format(scheme))
 
     elif callable(scheme):
         try:
             scheme(element)
         except Exception as err:
             raise ItIsBullshitError(element, err)
+
+    else:
+        raise ItIsBullshitError(element, u"Scheme mismatch {}".format(scheme))

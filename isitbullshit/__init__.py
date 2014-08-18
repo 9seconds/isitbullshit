@@ -4,6 +4,6 @@
 __version__ = 0, 1, 1
 
 
-from .core import isitbullshit, raise_for_problem
+from .core import isitbullshit, raise_for_problem, WHATEVER
 from .exceptions import ItIsBullshitError
 from .testcase_mixin import IsItBullshitMixin
