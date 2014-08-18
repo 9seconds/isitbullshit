@@ -1,7 +1,7 @@
 # Requirements for isitbullshit
 
 # Package requirements
-# No requirements! :)
+six
 
 # Test requirements
 pytest==2.6.1

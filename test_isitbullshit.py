@@ -6,6 +6,8 @@ import sys
 
 import pytest
 
+from six import moves, text_type
+
 from isitbullshit import isitbullshit, raise_for_problem, IsItBullshitMixin, \
     ItIsBullshitError, WHATEVER
 
@@ -30,7 +32,7 @@ def negative(element, scheme):
 
 
 @pytest.mark.parametrize("input_", (
-    1, 1.0, {"1": 1}, [1], (1,), "", u"",
+    1, 1.0, {"1": 1}, [1], (1,), "",
     set([]), frozenset([]), object(), pytest,
     True, False, None
 ))
@@ -39,7 +41,7 @@ def test_is(input_):
 
 
 @pytest.mark.parametrize("input_", (
-    1, 1.0, {"1": 1}, [1], (1,), "", u"",
+    1, 1.0, {"1": 1}, [1], (1,), "",
     set([]), frozenset([]), object(), pytest,
     True, False, None
 ))
@@ -63,7 +65,6 @@ def test_numbers():
     frozenset([]), frozenset([1]), frozenset([1, 2]),
     object(), pytest,
     "", "1",
-    u"", u"1"
 ))
 def test_whatever(input_):
     positive(input_, WHATEVER)
@@ -97,7 +98,7 @@ def test_multiple_validators_in_list():
 
 
 @pytest.mark.parametrize("input_", (
-    1, 1.0, [1], {"1": 1}, (1,), "", u"",
+    1, 1.0, [1], {"1": 1}, (1,), "",
     set([]), frozenset([]), object(), pytest,
     True, False, None
 ))
@@ -113,13 +114,13 @@ def test_dict_incorrect_types(input_):
 
 def test_dict_small_subset():
     positive(
-        dict((idx, idx) for idx in xrange(10)),
-        dict((idx, idx) for idx in xrange(5))
+        dict((idx, idx) for idx in moves.range(10)),
+        dict((idx, idx) for idx in moves.range(5))
     )
 
 
 @pytest.mark.parametrize("input_", (
-    1, 1.0, [1], {"1": 1}, (1,), "", u"",
+    1, 1.0, [1], {"1": 1}, (1,), "",
     set([]), frozenset([]), object(), pytest,
     True, False, None
 ))
@@ -134,7 +135,7 @@ def test_list_incorrect_types(input_):
 
 
 @pytest.mark.parametrize("input_, validator_", (
-    (list(xrange(10)), [int]),
+    (list(moves.range(10)), [int]),
     ([1.0, 2.0], [float]),
     ([pytest, pytest, pytest], [pytest]),
     ([1, 1, 1, 1, 1], [1])
@@ -177,7 +178,6 @@ def test_tuple_validator(input_, validator_, type_):
 @pytest.mark.parametrize("input_, result_", (
     ("hello", True),
     ("hello_", False),
-    (u"hello", True),
     (object(), False),
     (r"^hello", True),
     (r"hello$", True),
@@ -237,7 +237,7 @@ def test_string_itisbullshiterror():
     second_error = ItIsBullshitError("2 line", key_error)
     first_error = ItIsBullshitError("3 line", second_error)
 
-    output = unicode(first_error)
+    output = text_type(first_error)
     output = [line.strip() for line in output.split("\n")]
     assert ["3 line:", "2 line:", "3 line: Key Error"] == output
 

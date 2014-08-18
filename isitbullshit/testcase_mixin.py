@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 
+from six import text_type
+
 from .core import raise_for_problem, isitbullshit
 from .exceptions import ItIsBullshitError
 
@@ -11,7 +13,7 @@ class IsItBullshitMixin(object):
     @staticmethod
     def assertBullshit(data, scheme, reason=None):  # noqa pylint: disable=C0103
         if not isitbullshit(data, scheme):
-            raise AssertionError(unicode(reason))
+            raise AssertionError(text_type(reason))
 
     @staticmethod
     def assertNotBullshit(data, scheme, reason=None):  # noqa pylint: disable=C0103
@@ -20,4 +22,4 @@ class IsItBullshitMixin(object):
         except ItIsBullshitError as err:
             if reason is None:
                 reason = err
-            raise AssertionError(unicode(reason))
+            raise AssertionError(text_type(reason))
