@@ -33,8 +33,8 @@ class ItIsBullshitError(ValueError):
         return u("\n").join(self.to_strings())
 
     if PY3:
-        def __str__(self):
+        def __str__(self):  # noqa
             return self.__unicode__()
     else:
-        def __str__(self):
+        def __str__(self):  # noqa
             return self.__unicode__().encode("utf-8")
