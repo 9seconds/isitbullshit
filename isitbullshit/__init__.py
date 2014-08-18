@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
+__author__ = "Sergey Arkhipov <serge@aerialsounds.org>"
 __version__ = 0, 1, 1
 
 
