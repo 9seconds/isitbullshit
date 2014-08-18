@@ -66,7 +66,7 @@ def raise_for_problem(element, scheme):  # pylint: disable=R0912
         # noinspection PyTypeChecker
         if re.match(scheme, element, re.UNICODE) is None:
             raise ItIsBullshitError(element,
-                                    u"Regex mismatch: {}".format(scheme))
+                                    u"Regex mismatch: {0}".format(scheme))
 
     elif isinstance(scheme, float):
         if not isinstance(element, float):
@@ -81,4 +81,5 @@ def raise_for_problem(element, scheme):  # pylint: disable=R0912
             raise ItIsBullshitError(element, err)
 
     else:
-        raise ItIsBullshitError(element, u"Scheme mismatch {}".format(scheme))
+        raise ItIsBullshitError(element,
+                                u"Scheme mismatch {0}".format(scheme))
