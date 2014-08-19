@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
 
-from six import u, text_type, PY3
+from __future__ import unicode_literals
+
+
+from six import text_type, PY3
 
 
 class ItIsBullshitError(ValueError):
@@ -11,11 +14,11 @@ class ItIsBullshitError(ValueError):
     def __init__(self, line, cause):
         super(ItIsBullshitError, self).__init__()
 
-        self.line = text_type(line) + u(": ")
+        self.line = text_type(line) + ": "
         self.cause = cause
 
     def to_strings(self, indent=False):
-        indentation = u(" ") * 4 if indent else u("")
+        indentation = " " * 4 if indent else ""
 
         if isinstance(self.cause, ItIsBullshitError):
             yield indentation + self.line
@@ -30,7 +33,7 @@ class ItIsBullshitError(ValueError):
 
     # noinspection PyTypeChecker
     def __unicode__(self):
-        return u("\n").join(self.to_strings())
+        return "\n".join(self.to_strings())
 
     if PY3:
         def __str__(self):  # noqa

@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
 
+from __future__ import unicode_literals
+
+
 __author__ = "Sergey Arkhipov <serge@aerialsounds.org>"
 __version__ = 0, 1, 1
 
