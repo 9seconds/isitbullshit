@@ -5,7 +5,6 @@ WHATEVER = Ellipsis
 
 
 class OrSkipped(object):
-
     __slots__ = ("_func",)
 
     def __init__(self, func):

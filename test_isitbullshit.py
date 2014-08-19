@@ -81,7 +81,7 @@ def test_empty_schemas(input_):
         raise_for_problem
     )
     for func in funcs:
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             func({"data": 1, "time": 2}, input_())
 
 
@@ -93,7 +93,7 @@ def test_multiple_validators_in_list():
         raise_for_problem
     )
     for func in funcs:
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             func({"data": 1, "time": 2}, [1, 2, 3, 4])
 
 

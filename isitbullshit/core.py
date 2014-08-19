@@ -21,12 +21,15 @@ def isitbullshit(element, scheme):
 
 
 def raise_for_problem(element, scheme):  # pylint: disable=R0912
+    if isinstance(scheme, OrSkipped):
+        raise TypeError("Scheme could not be OrSkipped here")
+
     if element == scheme or element is scheme or scheme is WHATEVER:
         return
 
     if isinstance(scheme, dict):
         if not scheme:
-            raise ValueError("Dict scheme should contain at least 1 element")
+            raise TypeError("Dict scheme should contain at least 1 element")
         if not isinstance(element, dict):
             raise ItIsBullshitError(element,
                                     "Type mismatch, should be a dict")
@@ -42,9 +45,9 @@ def raise_for_problem(element, scheme):  # pylint: disable=R0912
 
     elif isinstance(scheme, list):
         if not scheme:
-            raise ValueError("List scheme should contain at least 1 element")
+            raise TypeError("List scheme should contain at least 1 element")
         if len(scheme) != 1:
-            raise ValueError("List scheme should contain only 1 element")
+            raise TypeError("List scheme should contain only 1 element")
         if not isinstance(element, (tuple, list)):
             raise ItIsBullshitError(element,
                                     "Type mismatch, should be a "
@@ -54,7 +57,7 @@ def raise_for_problem(element, scheme):  # pylint: disable=R0912
 
     elif isinstance(scheme, tuple):
         if not scheme:
-            raise ValueError("Tuple scheme should contain at least 1 element")
+            raise TypeError("Tuple scheme should contain at least 1 element")
         error = None
         for type_validator in scheme:
             try:
