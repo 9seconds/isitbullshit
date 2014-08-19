@@ -9,8 +9,6 @@ from six import text_type, PY3
 
 class ItIsBullshitError(ValueError):
 
-    __slots__ = ("line", "cause")
-
     def __init__(self, line, cause):
         super(ItIsBullshitError, self).__init__()
 

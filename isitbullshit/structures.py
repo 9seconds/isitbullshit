@@ -4,7 +4,7 @@
 WHATEVER = Ellipsis
 
 
-class OrSkipped(object):
+class OrSkipped(object):  # pylint: disable=R0903
     __slots__ = ("_func",)
 
     def __init__(self, func):

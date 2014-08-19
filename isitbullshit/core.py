@@ -39,7 +39,8 @@ def raise_for_problem(element, scheme):  # pylint: disable=R0912
                 original_validator = validator.validator
             if key not in element:
                 if not isinstance(validator, OrSkipped):
-                    raise ItIsBullshitError(element, "Missed key {0}".format(key))
+                    raise ItIsBullshitError(element,
+                                            "Missed key {0}".format(key))
             else:
                 raise_for_problem(element[key], original_validator)
 
