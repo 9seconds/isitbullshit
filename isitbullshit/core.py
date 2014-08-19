@@ -9,7 +9,7 @@ from six import u, iteritems, string_types, callable as compat_callable
 from .exceptions import ItIsBullshitError
 
 
-WHATEVER = object()
+WHATEVER = Ellipsis
 
 
 def isitbullshit(element, scheme):

@@ -34,7 +34,7 @@ def negative(element, scheme):
 @pytest.mark.parametrize("input_", (
     1, 1.0, {"1": 1}, [1], (1,), "",
     set([]), frozenset([]), object(), pytest,
-    True, False, None
+    True, False, None, Ellipsis
 ))
 def test_is(input_):
     positive(input_, input_)
@@ -43,7 +43,7 @@ def test_is(input_):
 @pytest.mark.parametrize("input_", (
     1, 1.0, {"1": 1}, [1], (1,), "",
     set([]), frozenset([]), object(), pytest,
-    True, False, None
+    True, False, None, Ellipsis
 ))
 def test_not_is(input_):
     negative(input_, object())
@@ -63,7 +63,7 @@ def test_numbers():
     tuple(), (1,), (1, "2"),
     set([]), set([1]), set([1, 2]),
     frozenset([]), frozenset([1]), frozenset([1, 2]),
-    object(), pytest,
+    object(), pytest, Ellipsis,
     "", "1",
 ))
 def test_whatever(input_):
@@ -100,7 +100,7 @@ def test_multiple_validators_in_list():
 @pytest.mark.parametrize("input_", (
     1, 1.0, [1], {"1": 1}, (1,), "",
     set([]), frozenset([]), object(), pytest,
-    True, False, None
+    True, False, None, Ellipsis
 ))
 def test_dict_incorrect_types(input_):
     validators = (
@@ -122,7 +122,7 @@ def test_dict_small_subset():
 @pytest.mark.parametrize("input_", (
     1, 1.0, [1], {"1": 1}, (1,), "",
     set([]), frozenset([]), object(), pytest,
-    True, False, None
+    True, False, None, Ellipsis
 ))
 def test_list_incorrect_types(input_):
     validators = (
@@ -194,7 +194,7 @@ def test_string(input_, result_):
 @pytest.mark.parametrize("input_", (
     1, 1.0, [1], {"1": 1}, (1,),
     set([]), frozenset([]), object(), pytest,
-    True, False, None
+    True, False, None, Ellipsis
 ))
 def test_not_string(input_):
     negative(input_, "hello")
@@ -213,7 +213,7 @@ def test_float(input_, result_):
 @pytest.mark.parametrize("input_", (
     2, 2.0, [1], {"1": 1}, (1,),
     set([]), frozenset([]), object(), pytest,
-    True, False, None
+    True, False, None, Ellipsis
 ))
 def test_not_float(input_):
     negative(input_, 10.0)
