@@ -9,7 +9,7 @@ import pytest
 from six import moves, text_type
 
 from isitbullshit import isitbullshit, raise_for_problem, IsItBullshitMixin, \
-    ItIsBullshitError, WHATEVER
+    ItIsBullshitError, WHATEVER, OrSkipped
 
 
 def positive(element, scheme):
@@ -243,3 +243,36 @@ def test_string_itisbullshiterror():
 
     repr(first_error)
     str(first_error)
+
+
+@pytest.mark.parametrize("input_", (
+    2, 2.0, [1], {"1": 1}, (1,),
+    set([]), frozenset([]), object(), pytest,
+    True, False, None, Ellipsis
+))
+def test_orskipped_fails(input_):
+    with pytest.raises(TypeError):
+        negative(input_, OrSkipped(input_))
+
+
+@pytest.mark.parametrize("input_, result_", (
+    ({"foo": "bar", "hello": "world"}, True),
+    ({"foo": "bar", "hello": 1}, False),
+    ({"foo": "bar", "hello": OrSkipped("world")}, True),
+    ({"foo": "bar", "hello": OrSkipped(1)}, False),
+))
+def test_skipped_scheme(input_, result_):
+    func = positive if result_ else negative
+    func({"foo": "bar", "hello": "world"}, input_)
+
+
+@pytest.mark.parametrize("input_, result_", (
+    ({"foo": "bar", "hello": "world"}, True),
+    ({"foo": "bar", "hello": 1}, False),
+    ({"foo": "bar"}, True),
+    ({"foo": "bar", "hello": 1}, False),
+    ({"foo": "bar", "hello": OrSkipped("world")}, False),
+))
+def test_skipped_element(input_, result_):
+    func = positive if result_ else negative
+    func(input_, {"foo": "bar", "hello": OrSkipped("world")})
