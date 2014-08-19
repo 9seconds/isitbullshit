@@ -9,9 +9,7 @@ import re
 from six import iteritems, string_types, callable as compat_callable
 
 from .exceptions import ItIsBullshitError
-
-
-WHATEVER = Ellipsis
+from .structures import WHATEVER, OrSkipped
 
 
 def isitbullshit(element, scheme):
@@ -33,9 +31,14 @@ def raise_for_problem(element, scheme):  # pylint: disable=R0912
             raise ItIsBullshitError(element,
                                     "Type mismatch, should be a dict")
         for key, validator in iteritems(scheme):
+            original_validator = validator
+            if isinstance(validator, OrSkipped):
+                original_validator = validator.validator
             if key not in element:
-                raise ItIsBullshitError(element, "Missed key {0}".format(key))
-            raise_for_problem(element[key], validator)
+                if not isinstance(validator, OrSkipped):
+                    raise ItIsBullshitError(element, "Missed key {0}".format(key))
+            else:
+                raise_for_problem(element[key], original_validator)
 
     elif isinstance(scheme, list):
         if not scheme:

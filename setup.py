@@ -13,8 +13,8 @@ from setuptools import setup
 
 setup(
     name='isitbullshit',
-    version='0.1.0',
-    url='https://github.com/9seconds/isitbullshit',
+    version='0.2.0',
+    url='https://github.com/9seconds/isitbullshit/',
     license='MIT',
     author='Sergey Arkhipov',
     author_email='serge@aerialsounds.org',
