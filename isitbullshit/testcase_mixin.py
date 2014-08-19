@@ -11,14 +11,14 @@ from .exceptions import ItIsBullshitError
 class IsItBullshitMixin(object):
 
     @staticmethod
-    def assertBullshit(data, scheme, reason=None):  # noqa pylint: disable=C0103
-        if not isitbullshit(data, scheme):
+    def assertBullshit(suspicious, scheme, reason=None):  # noqa pylint: disable=C0103
+        if not isitbullshit(suspicious, scheme):
             raise AssertionError(text_type(reason))
 
     @staticmethod
-    def assertNotBullshit(data, scheme, reason=None):  # noqa pylint: disable=C0103
+    def assertNotBullshit(suspicious, scheme, reason=None):  # noqa pylint: disable=C0103
         try:
-            raise_for_problem(data, scheme)
+            raise_for_problem(suspicious, scheme)
         except ItIsBullshitError as err:
             if reason is None:
                 reason = err
