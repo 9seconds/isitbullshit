@@ -11,7 +11,7 @@ import os.path
 
 import pytest
 
-from six import moves, text_type, string_types
+from six import moves, text_type, string_types, iteritems
 
 from isitbullshit import isitbullshit, raise_for_problem, IsItBullshitMixin, \
     ItIsBullshitError, WHATEVER, OrSkipped
@@ -391,7 +391,6 @@ class TestREADME(object):
     @pytest.mark.parametrize("input_, validator_", (
         (1, 1),
         (1.0, 1.0),
-        (1.0, decimal.Decimal("1.0")),
         (None, None)
     ))
     def test_value_validation(self, input_, validator_):
@@ -435,7 +434,7 @@ class TestREADME(object):
 
         positive(schema, schema)
 
-        stripped_schema = dict((k, v) for k, v in schema.iteritems() if k != "baz")
+        stripped_schema = dict((k, v) for k, v in iteritems(schema) if k != "baz")
         positive(schema, stripped_schema)
         raise_for_problem(stripped_schema, schema)
 

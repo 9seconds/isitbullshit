@@ -53,7 +53,7 @@ def shallow_check(suspicious, scheme):
             if func(suspicious, scheme):
                 return True
         except TypeError:
-            pass
+            continue
 
     return False
 
