@@ -2,6 +2,7 @@
 
 
 WHATEVER = Ellipsis
+FUNC_TYPE = type(lambda: 1)
 
 
 class OrSkipped(object):  # pylint: disable=R0903

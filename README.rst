@@ -119,7 +119,7 @@ You've got an idea, right? Pretty common and rather simple. Let's compose a sche
                         },
                         "language": str,
                         "type": ("paperback", "kindle"),
-                        "finished": OrSkipped(true),
+                        "finished": OrSkipped(True),
                         "rate": (rate_validator, None),
                         "tags": [str],
                         "published": {
@@ -287,7 +287,7 @@ code is valid (and it is reasonable, right?)
     >>> }
     >>> isitbullshit(schema, schema)
     False
-    >>> stripped_schema = dict((k, v) for k, v in schema.iteritems() if k == "baz")
+    >>> stripped_schema = dict((k, v) for k, v in schema.iteritems() if k != "baz")
     >>> isitbullshit(stripped_schema, schema)
     False
     >>> isitbullshit(schema, stripped_schema)

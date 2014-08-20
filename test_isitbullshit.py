@@ -2,11 +2,16 @@
 # -*- coding: utf-8 -*-
 
 
+from __future__ import unicode_literals
+
+import decimal
+import json
 import sys
+import os.path
 
 import pytest
 
-from six import moves, text_type
+from six import moves, text_type, string_types
 
 from isitbullshit import isitbullshit, raise_for_problem, IsItBullshitMixin, \
     ItIsBullshitError, WHATEVER, OrSkipped
@@ -227,7 +232,7 @@ class TestBullsit(object):
         assert ["3 line:", "2 line:", "3 line: Key Error"] == output
 
         repr(first_error)
-        str(first_error)
+        text_type(first_error)
 
     @pytest.mark.parametrize("input_", (
         2, 2.0, [1], {"1": 1}, (1,),
@@ -258,3 +263,220 @@ class TestBullsit(object):
     def test_skipped_element(self, input_, result_):
         func = positive if result_ else negative
         func(input_, {"foo": "bar", "hello": OrSkipped("world")})
+
+
+class TestREADME(object):
+
+    def test_main_example(self):
+        data = """
+            {
+                "model": "book_collection",
+                "pk": 318,
+                "fields": {
+                    "books": [
+                        {
+                            "model": "book",
+                            "pk": 18,
+                            "fields": {
+                                "title": "Jane Eyre",
+                                "author": "Charlotte Brontë",
+                                "isbn": {
+                                    "10": "0142437204",
+                                    "13": "978-0142437209"
+                                },
+                                "rate": null,
+                                "language": "English",
+                                "type": "paperback",
+                                "tags": [
+                                    "Penguin Classics",
+                                    "Classics",
+                                    "Favorites"
+                                ],
+                                "published": {
+                                    "publisher": "Penguin Books",
+                                    "date": {
+                                        "day": 24,
+                                        "month": 4,
+                                        "year": 2003
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "model": "book",
+                            "pk": 18,
+                            "fields": {
+                                "title": "The Great Gatsby",
+                                "author": "F.Scott Fitzgerald",
+                                "isbn": {
+                                    "10": "185326041X",
+                                    "13": "978-1853260414"
+                                },
+                                "language": "English",
+                                "type": "paperback",
+                                "finished": true,
+                                "rate": 4,
+                                "tags": [
+                                    "Wordsworth Classics",
+                                    "Classics",
+                                    "Favorites"
+                                ],
+                                "published": {
+                                    "publisher": "Wordsworth Editions Ltd",
+                                    "date": {
+                                        "day": 1,
+                                        "month": 5,
+                                        "year": 1992
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        """
+        def rate_validator(value):
+            if not (1 <= int(value) <= 5):
+                raise ValueError(
+                    "Value {} has to be from 1 till 5".format(value)
+                )
+
+        schema = {
+            "model": string_types,
+            "pk": int,
+            "fields": {
+                "books": [
+                    {
+                        "model": string_types,
+                        "pk": int,
+                        "fields": {
+                            "title": string_types,
+                            "author": string_types,
+                            "isbn": {
+                                "10": string_types,
+                                "13": string_types
+                            },
+                            "language": string_types,
+                            "type": ("paperback", "kindle"),
+                            "finished": OrSkipped(True),
+                            "rate": (rate_validator, None),
+                            "tags": [string_types],
+                            "published": {
+                                "publisher": string_types,
+                                "date": OrSkipped(
+                                    {
+                                        "day": int,
+                                        "month": int,
+                                        "year": int
+                                    }
+                                )
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+
+        parsed_data = json.loads(data)
+
+        positive(parsed_data, schema)
+
+    def test_basic_concepts(self):
+        suspicious = {
+            "foo": 1,
+            "bar": 2
+        }
+        positive(suspicious, suspicious)
+
+    @pytest.mark.parametrize("input_, validator_", (
+        (1, 1),
+        (1.0, 1.0),
+        (1.0, decimal.Decimal("1.0")),
+        (None, None)
+    ))
+    def test_value_validation(self, input_, validator_):
+        positive(input_, validator_)
+
+    def test_value_validation_object(self):
+        obj = object()
+        positive(obj, obj)
+
+    @pytest.mark.parametrize("input_, validator_", (
+        (1, int),
+        (1.0, float),
+        (decimal.Decimal("1.0"), decimal.Decimal),
+        (object(), object)
+    ))
+    def test_type_validation(self, input_, validator_):
+        positive(input_, validator_)
+
+    @pytest.mark.parametrize("input_, result_", (
+        ({"foo": 1, "bar": 1}, True),
+        ({"foo": 1, "bar": "str"}, False),
+        ({"foo": 1, "bar": 1, "baz": 1}, False),
+        ({"foo": 1, "bar": 1, "baz": "str"}, True)
+    ))
+    def test_orskipped1(self, input_, result_):
+        schema = {
+            "foo": 1,
+            "bar": OrSkipped(int),
+            "baz": OrSkipped(string_types)
+        }
+
+        func = positive if result_ else negative
+        func(input_, schema)
+
+    def test_orskipped2(self):
+        schema = {
+            "foo": 1,
+            "bar": OrSkipped(int),
+            "baz": OrSkipped(str)
+        }
+
+        positive(schema, schema)
+
+        stripped_schema = dict((k, v) for k, v in schema.iteritems() if k != "baz")
+        positive(schema, stripped_schema)
+        raise_for_problem(stripped_schema, schema)
+
+    @pytest.mark.parametrize("input_", (
+        {"foo": 1, "bar": 1},
+        {"foo": 1, "bar": "str"},
+        {"foo": 1, "bar": object()},
+        {"foo": 1, "bar": os.path},
+        {"foo": 1, "bar": [1, 2, 3]}
+    ))
+    def test_whatever(self, input_):
+        positive(input_, {"foo": 1, "bar": WHATEVER})
+
+    @pytest.mark.parametrize("input_", (
+        {"foo": 1, "bar": "st"},
+        {"foo": 1, "bar": "str", "baz": 1},
+        {"foo": 1, "bar": "str", "baz": object()}
+    ))
+    def test_dict_validation(self, input_):
+        schema = {
+            "foo": 1,
+            "bar": string_types
+        }
+
+        positive(input_, schema)
+
+    @pytest.mark.parametrize("input_, validator_, result_", (
+        ([1, 2, 3], [int], True),
+        ([1, 2, 3], [str], False),
+        ([1, 2, "3"], [int], False)
+    ))
+    def test_list_validation(self, input_, validator_, result_):
+        func = positive if result_ else negative
+        func(input_, validator_)
+
+    @pytest.mark.parametrize("input_, validator_, result_", (
+        (1, (str, dict), False),
+        (1, (str, int), True),
+        ([1, 2, "3"], [int], False),
+        ([1, 2, "3"], [(int,) + string_types], True)
+    ))
+    def test_tuple_validation(self, input_, validator_, result_):
+        func = positive if result_ else negative
+        func(input_, validator_)

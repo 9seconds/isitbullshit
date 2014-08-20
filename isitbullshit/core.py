@@ -6,10 +6,10 @@ from __future__ import unicode_literals
 import sys
 import re
 
-from six import iteritems, string_types, callable as compat_callable
+from six import iteritems, string_types
 
 from .exceptions import ItIsBullshitError
-from .structures import WHATEVER, OrSkipped
+from .structures import WHATEVER, OrSkipped, FUNC_TYPE
 
 
 def isitbullshit(suspicious, scheme):
@@ -24,7 +24,7 @@ def raise_for_problem(suspicious, scheme):
     if isinstance(scheme, OrSkipped):
         raise TypeError("Scheme could not be OrSkipped here")
 
-    if suspicious == scheme or suspicious is scheme or scheme is WHATEVER:
+    if shallow_check(suspicious, scheme):
         return
 
     if isinstance(scheme, dict):
@@ -37,11 +37,25 @@ def raise_for_problem(suspicious, scheme):
         raise_for_string_problem(suspicious, scheme)
     elif isinstance(scheme, float):
         raise_for_float_problem(suspicious, scheme)
-    elif compat_callable(scheme):
+    elif isinstance(scheme, FUNC_TYPE):
         raise_for_callable_problem(suspicious, scheme)
     else:
         raise ItIsBullshitError(suspicious,
                                 "Scheme mismatch {0}".format(scheme))
+
+
+def shallow_check(suspicious, scheme):
+    if suspicious == scheme or suspicious is scheme or scheme is WHATEVER:
+        return True
+
+    for func in (isinstance, issubclass):
+        try:
+            if func(suspicious, scheme):
+                return True
+        except TypeError:
+            pass
+
+    return False
 
 
 def raise_for_dict_problem(suspicious, scheme):
@@ -60,7 +74,8 @@ def raise_for_dict_problem(suspicious, scheme):
                 raise ItIsBullshitError(suspicious,
                                         "Missed key {0}".format(key))
         else:
-            raise_for_problem(suspicious[key], original_validator)
+            if suspicious[key] is not validator:
+                raise_for_problem(suspicious[key], original_validator)
 
 
 def raise_for_list_problem(suspicious, scheme):
