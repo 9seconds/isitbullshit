@@ -1,11 +1,15 @@
 isitbullshit
 ============
 
-isitbullshit is small and funny library which is intended to be used like lightweight schema verification for JSONs but
+``isitbullshit`` is small and funny library which is intended to be used like lightweight schema verification for JSONs but
 basically it could be used as a schema validator for every generic Python structure: dict, list, tuple etc. It is
 written to be pretty much Pythonic in a good sense: easy to use and very clean syntax but powerful enough to clean
 your needs. But mostly for verification of incoming JSONs. Actually it is really stable and I am using it in a several
 production projects, this is an excerpt because I really got tired from wheel reinventions.
+
+I do care about quality of this code, so it is **fully linted** and **100%** covered by tests. I am a bit paranoid
+here because you can forgive an error in some library but won't forgive any bug in a validator. I know it from my
+own experience.
 
 Yes, this is a wheel reinvention also but probably you will like it. Let me show the code.
 
@@ -84,7 +88,7 @@ Okay, let's say you are doing some backend for the library and you have to proce
         }
     }
 
-You've got an idea, right? Pretty common and rather simple. Let's compose schema and verify it.
+You've got an idea, right? Pretty common and rather simple. Let's compose a schema and verify it.
 
 .. code-block:: python
 
@@ -240,8 +244,157 @@ I hope you've got an idea.
 
 
 
-OrSkipped and WHATEVER validator
---------------------------------
+OrSkipped validator
+-------------------
 
 Sometimes we live in a real world which sucks. Sometimes we have schemaless data (and it sucks of course) so some
-fields from your requests are missed.
+fields from your requests are missed. Or you do not care. ``isitbullshit`` has 2 different fixes for
+that: ``OrSkipped`` and ``WHATEVER``.
+
+If you wrap a part of your validator in ``OrSkipped`` than you mark that it is ok if this field would be absent.
+Argument is a validator of course. And if field is in place, it will be validated as expected.
+
+.. code-block:: python
+
+    >>> schema = {
+    ...     "foo": 1,
+    ...     "bar": OrSkipped(int),
+    ...     "baz": OrSkipped(str)
+    >>> }
+    >>> print isitbullshit({"foo": 1, "bar": 1}, schema)
+    False
+    >>> print isitbullshit({"foo": 1, "bar": "str"}, schema)
+    True
+    >>> print isitbullshit({"foo": 1, "bar": 1, "baz": 1}, schema)
+    True
+    >>> print isitbullshit({"foo": 1, "bar": 1, "baz": "str"}, schema)
+    False
+
+So if we miss any field, it is ok. Unless it is presented and validator-argument point us to a bullshit.
+
+``OrSkipped`` has to be used only with dictionary field validation. You can put it anywhere but then it has no special
+meaning, just an object.
+
+By the way, type validation rule is still here: ``itisbullshit(something, something) == False`` anyway so the following
+code is valid (and it is reasonable, right?)
+
+.. code-block:: python
+
+    >>> schema = {
+    ...     "foo": 1,
+    ...     "bar": OrSkipped(int),
+    ...     "baz": OrSkipped(str)
+    >>> }
+    >>> isitbullshit(schema, schema)
+    False
+    >>> stripped_schema = dict((k, v) for k, v in schema.iteritems() if k == "baz")
+    >>> isitbullshit(stripped_schema, schema)
+    False
+    >>> isitbullshit(schema, stripped_schema)
+    False
+
+Guess why.
+
+
+
+WHATEVER validator
+------------------
+
+``WHATEVER`` is a mark that you do not care what value is. It could be anything, none cares.
+
+.. code-block:: python
+
+    >>> schema = {
+    ...     "foo": 1,
+    ...     "bar": WHATEVER
+    >>> }
+    >>> print isitbullshit({"foo": 1, "bar": 1}, schema)
+    False
+    >>> print isitbullshit({"foo": 1, "bar": "str"}, schema)
+    False
+    >>> print isitbullshit({"foo": 1, "bar": object()}, schema)
+    False
+    >>> print isitbullshit({"foo": 1, "bar": os.path}, schema)
+    False
+    >>> print isitbullshit({"foo": 1, "bar": [1, 2, 3]}, schema)
+    False
+
+See? We do not care about a value of a ``bar``.
+
+``WHATEVER`` could be used with any type.
+
+
+Dict validation
+---------------
+
+You've already saw a ``dict`` validation so let me repeat your assumptions: yes, we match values with the same keys. But
+there is only one pitfall: if suspicious element has more fields than schema, then validation is ok also.
+
+It has it's own meaning: we can put only those keys and fields we actually care about. Our software later will work
+only with this subset so why should we care about the rest of rubbish?
+
+So, an example again:
+
+.. code-block:: python
+
+    >>> schema = {
+    ...     "foo": 1,
+    ...     "bar": str
+    >>> }
+    >>> print isitbullshit({"foo": 1, "bar": "st"}, schema)
+    False
+    >>> print isitbullshit({"foo": 1, "bar": "str", "baz": 1}, schema)
+    False
+    >>> print isitbullshit({"foo": 1, "bar": "str", "baz": object()}, schema)
+    False
+
+As you can see, we did not mention any ``baz`` in an element but validation still passed.
+
+
+
+List validation
+---------------
+
+List validation is pretty simple: we define one validator and it will be matched to any list element.
+
+.. code-block:: python
+
+    >>> print isitbullshit([1, 2, 3], [int])
+    False
+    >>> print isitbullshit([1, 2, 3], [str])
+    True
+    >>> print isitbullshit([1, 2, "3"], [int])
+    True
+
+In the last example, ``"3"`` is not an integer so fail.
+
+How could we manage situations when we have heterogeneous elements? We have to use tuples.
+
+And please remember that ``isitbullshit(something, something) == False``.
+
+
+Tuple validation
+----------------
+
+Tuple validation is pretty easy to understand if you consider it as a OR condition. We define several validators
+and value has to match at least one. So
+
+.. code-block:: python
+
+    >>> print isitbullshit(1, (str, dict))
+    True
+    >>> print isitbullshit(1, (str, int))
+    False
+
+``1`` is not ``str`` but it is ``int``.
+
+Now let's try to fix an example in the previous chapter.
+
+.. code-block:: python
+
+    >>> print isitbullshit([1, 2, "3"], [int])
+    True
+    >>> print isitbullshit([1, 2, "3"], [(int, str)])
+    False
+
+And again, do not forget about a rule of thumb: ``isitbullshit(something, something) == False``.
