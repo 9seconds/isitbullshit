@@ -6,8 +6,8 @@ isitbullshit
 ``isitbullshit`` is small and funny library which is intended to be used like lightweight schema verification for JSONs
 but basically it could be used as a schema validator for every generic Python structure: dict, list, tuple etc. It is
 written to be pretty much Pythonic in a good sense: easy to use and very clean syntax but powerful enough to clean
-your needs. But mostly for verification of incoming JSONs. Actually it is really stable and I am using it in a several
-production projects, this is an excerpt because I really got tired from wheel reinventions.
+your needs. But mostly for verification of incoming JSONs. Actually it is really stable and I am using it in several
+production projects, this is an excerpt because I really got tired of reinventing the wheel.
 
 Yes, this is a wheel reinvention also but probably you will like it. Let me show the code.
 
@@ -147,7 +147,7 @@ Pretty straightforward. Let me explain what is going on here.
 Basic concepts
 --------------
 
-isitbullshit was created to be used with JSONs and actively uses this fact that JSON perfectly matches to Python
+isitbullshit was created to be used with JSONs and actively uses the fact that JSON perfectly matches to Python
 internal data structures. Basic rule here: if elements are equal then they should be validated without any problems.
 
 So if you have a code like
@@ -178,7 +178,7 @@ So there are some rules.
 Value validation
 ----------------
 
-Value validation is pretty straighforward: if values are the sames or they are equal to each other (operation ``=``)
+Value validation is pretty straighforward: if values are the same or they are equal to each other (operation ``=``)
 then validation has to be passed. So the rule is: if ``is`` or ``=`` works, then matching is successful.
 
 .. code-block:: python
@@ -221,7 +221,7 @@ So
 Custom validation
 -----------------
 
-Let's back to an example. Have you mentioned that we have ``rate_validator`` function there? It is custom validator.
+Let's get back to an example. Have you mentioned that we have ``rate_validator`` function there? It is custom validator.
 
 It works pretty simple: you define custom callable (function, lambda, class, etc) and ``isitbullshit`` gives it your
 value. If no exception is raised than we consider the value as successfully validated. So in our example if a ``rate``
@@ -298,7 +298,7 @@ Guess why.
 WHATEVER validator
 ------------------
 
-``WHATEVER`` is a mark that you do not care what value is. It could be anything, none cares.
+``WHATEVER`` is a mark that you do not care what value is. It could be anything, nobody cares.
 
 .. code-block:: python
 
@@ -325,8 +325,8 @@ See? We do not care about a value of a ``bar``.
 Dict validation
 ---------------
 
-You've already saw a ``dict`` validation so let me repeat your assumptions: yes, we match values with the same keys. But
-there is only one pitfall: if suspicious element has more fields than schema, then validation is ok also.
+You've already seen a ``dict`` validation so let me repeat your assumptions: yes, we match values with the same keys.
+But there is only one pitfall: if suspicious element has more fields than schema, then validation is ok also.
 
 It has it's own meaning: we can put only those keys and fields we actually care about. Our software later will work
 only with this subset so why should we care about the rest of rubbish?
@@ -364,7 +364,7 @@ List validation is pretty simple: we define one validator and it will be matched
     >>> print isitbullshit([1, 2, "3"], [int])
     True
 
-In the last example, ``"3"`` is not an integer so fail.
+In the last example, ``"3"`` is not an integer so validation fails.
 
 How could we manage situations when we have heterogeneous elements? We have to use tuples.
 
@@ -374,8 +374,8 @@ And please remember that ``isitbullshit(something, something) == False``.
 Tuple validation
 ----------------
 
-Tuple validation is pretty easy to understand if you consider it as a OR condition. We define several validators
-and value has to match at least one. So
+Tuple validation is pretty easy to understand if you consider it as an OR condition. We define several validators
+and and the value has to match at least one of them. So
 
 .. code-block:: python
 
@@ -429,7 +429,7 @@ allows you to use 2 additional methods:
 * ``assertBullshit``
 * ``assertNotBullshit``
 
-Guess what do they do.
+Guess what they do.
 
 .. code-block:: python
 
