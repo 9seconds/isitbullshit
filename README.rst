@@ -1,15 +1,13 @@
 isitbullshit
 ============
 
-``isitbullshit`` is small and funny library which is intended to be used like lightweight schema verification for JSONs but
-basically it could be used as a schema validator for every generic Python structure: dict, list, tuple etc. It is
+|Build Status| |Code Coverage| |Static Analysis|
+
+``isitbullshit`` is small and funny library which is intended to be used like lightweight schema verification for JSONs
+but basically it could be used as a schema validator for every generic Python structure: dict, list, tuple etc. It is
 written to be pretty much Pythonic in a good sense: easy to use and very clean syntax but powerful enough to clean
 your needs. But mostly for verification of incoming JSONs. Actually it is really stable and I am using it in a several
 production projects, this is an excerpt because I really got tired from wheel reinventions.
-
-I do care about quality of this code, so it is **fully linted** and **100%** covered by tests. I am a bit paranoid
-here because you can forgive an error in some library but won't forgive any bug in a validator. I know it from my
-own experience.
 
 Yes, this is a wheel reinvention also but probably you will like it. Let me show the code.
 
@@ -398,3 +396,13 @@ Now let's try to fix an example in the previous chapter.
     False
 
 And again, do not forget about a rule of thumb: ``isitbullshit(something, something) == False``.
+
+
+.. |Build Status| image:: https://travis-ci.org/9seconds/isitbullshit.svg?branch=master
+    :target: https://travis-ci.org/9seconds/isitbullshit
+
+.. |Code Coverage| image:: https://coveralls.io/repos/9seconds/isitbullshit/badge.png?branch=master
+    :target: https://coveralls.io/r/9seconds/isitbullshit?branch=master
+
+.. |Static Analysis| image:: https://landscape.io/github/9seconds/isitbullshit/master/landscape.png
+    :target: https://landscape.io/github/9seconds/isitbullshit/master
