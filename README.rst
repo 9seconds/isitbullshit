@@ -398,6 +398,53 @@ Now let's try to fix an example in the previous chapter.
 And again, do not forget about a rule of thumb: ``isitbullshit(something, something) == False``.
 
 
+
+raise_for_problem function
+--------------------------
+
+This package also provides you with another method to validate, ``raise_for_problem`` actually this is a core method
+which raises an exception on a problem. ``isitbullshit`` allows you to get an idea what is happening in both Python2 and
+Python3, let's check an example.
+
+.. code-block:: python
+
+    >>> try:
+    ...     raise_for_problem({"foo": "1", "bar": {"baz": 2}}, {"foo": "1", "bar": {"baz": str}})
+    ... except ItIsBullshitError as err:
+    ...     print err
+    {'foo': '1', 'bar': {'baz': 2}}:
+        {'baz': 2}:
+            2: Scheme mismatch <type 'str'>
+
+Quite clear and nice.
+
+
+
+IsItBullshitMixin mixin
+-----------------------
+
+``isitbullshit`` also supplied with ``IsItBullshitMixin`` which is intended to be mixed with ``unittest.TestCase``. It
+allows you to use 2 additional methods:
+
+* ``assertBullshit``
+* ``assertNotBullshit``
+
+Guess what do they do.
+
+.. code-block:: python
+
+    from unittest import TestCase
+    from isitbullshit import IsItBullshitMixin
+
+    class BullshitTestCase(IsIsBullshitMixin, TestCase):
+
+        def test_bullshit(self):
+            self.assertBullshit(1, None)
+
+        def test_not_bullshit(self):
+            self.assertNotBullshit(1, int)
+
+
 .. |Build Status| image:: https://travis-ci.org/9seconds/isitbullshit.svg?branch=master
     :target: https://travis-ci.org/9seconds/isitbullshit
 

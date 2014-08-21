@@ -75,7 +75,10 @@ def raise_for_dict_problem(suspicious, scheme):
                                         "Missed key {0}".format(key))
         else:
             if suspicious[key] is not validator:
-                raise_for_problem(suspicious[key], original_validator)
+                try:
+                    raise_for_problem(suspicious[key], original_validator)
+                except ItIsBullshitError as err:
+                    raise ItIsBullshitError(suspicious, err)
 
 
 def raise_for_list_problem(suspicious, scheme):
@@ -89,7 +92,10 @@ def raise_for_list_problem(suspicious, scheme):
         raise ItIsBullshitError(suspicious,
                                 "Type mismatch, should be a list or a tuple")
     for item in suspicious:
-        raise_for_problem(item, scheme[0])
+        try:
+            raise_for_problem(item, scheme[0])
+        except ItIsBullshitError as err:
+            raise ItIsBullshitError(suspicious, err)
 
 
 def raise_for_tuple_problem(suspicious, scheme):

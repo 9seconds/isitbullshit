@@ -8,6 +8,7 @@ import decimal
 import json
 import sys
 import os.path
+import unittest
 
 import pytest
 
@@ -479,3 +480,12 @@ class TestREADME(object):
     def test_tuple_validation(self, input_, validator_, result_):
         func = positive if result_ else negative
         func(input_, validator_)
+
+
+class TestMixin(IsItBullshitMixin, unittest.TestCase):
+
+    def test_bullshit(self):
+        self.assertBullshit(1, None)
+
+    def test_not_bullshit(self):
+        self.assertNotBullshit(1, int)
