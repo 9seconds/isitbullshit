@@ -229,16 +229,49 @@ field is not in (1, 5) interval or not integer then exception will be raised.
 
 Custom validators are used mostly in cases if you have to check a content or do not so shallow verifications.
 
-Another example is MongoDB. Do you use ``ObjectId``?
+But there is only one pitfall you may face with: **custom validators have to be a functions**. Basically, this is an
+obligatory rule and there are several reasons. Let's checkout the code:
 
 .. code-block:: python
 
-    >>> print isitbullshit(1, bson.ObjectId)
+    >>> print isitbullshit(1, str)
+
+What do you expect to have as result? I guess ``True`` because integer is not an instance of the string type, right?
+But wait a minute, in Python 2:
+
+.. code-block:: python
+
+    >>> type(str)
+    <type 'type'>
+
+and in Python 3
+
+.. code-block:: python
+
+    >>> type(str)
+    <class 'type'>
+
+So they are types! They have the same type as, let's say, ``Exception`` or ``object``, right? But validation rules
+have to be consistent so I am trying to keep absolutely the same behaviour to have it clean and predictable.
+
+What is the story? Here is the story:
+
+.. code-block:: python
+
+    >>> print str(1)
+    '1'
+
+So to avoid such situations when ``isitbullshit(1, str) == False`` it is better to use functions. Functions are the most
+reasonable agreement I see here. So if you want to verify MongoDB's ObjectId's do the following:
+
+.. code-block:: python
+
+    >>> print isitbullshit(1, lambda value: bson.ObjectId(value))
     True
-    >>> print isitbullshit("507c7f79bcf86cd7994f6c0e", bson.ObjectId)
+    >>> print isitbullshit("507c7f79bcf86cd7994f6c0e", lambda value: bson.ObjectId(value))
     False
 
-I hope you've got an idea.
+It brings some clutter but at least you will not hike in the minefield.
 
 
 
