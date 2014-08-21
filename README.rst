@@ -1,7 +1,7 @@
 isitbullshit
 ============
 
-|Build Status| |Code Coverage| |Static Analysis|
+|Build Status| |Code Coverage| |Static Analysis| |PyPi Package|
 
 ``isitbullshit`` is small and funny library which is intended to be used like lightweight schema verification for JSONs
 but basically it could be used as a schema validator for every generic Python structure: dict, list, tuple etc. It is
@@ -453,3 +453,6 @@ Guess what do they do.
 
 .. |Static Analysis| image:: https://landscape.io/github/9seconds/isitbullshit/master/landscape.png
     :target: https://landscape.io/github/9seconds/isitbullshit/master
+
+.. |PyPi Package| image:: https://badge.fury.io/py/isitbullshit.svg
+    :target: http://badge.fury.io/py/isitbullshit
