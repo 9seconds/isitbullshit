@@ -9,3 +9,4 @@ tox==1.7.2
 # It is always good to have it in the virtualenv
 # if you want to avoid this annoying message on the start
 ipython==2.2.0
+ipdb==0.8

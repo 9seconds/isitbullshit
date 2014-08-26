@@ -10,6 +10,7 @@ import sys
 import os.path
 import unittest
 
+import pep3134
 import pytest
 
 from six import moves, text_type, string_types, iteritems
@@ -224,16 +225,15 @@ class TestBullsit(object):
         negative("1", validator_nok)
 
     def test_string_itisbullshiterror(self):
-        key_error = ItIsBullshitError("3 line", "Key Error")
-        second_error = ItIsBullshitError("2 line", key_error)
-        first_error = ItIsBullshitError("3 line", second_error)
+        error_to_check = ValueError("KeyError")
+        for line in ("3 line", "2 line", "4 line"):
+            try:
+                current_error = ItIsBullshitError(line)
+                pep3134.raise_from(current_error, error_to_check)
+            except ItIsBullshitError as err:
+                error_to_check = err
 
-        output = text_type(first_error)
-        output = [line.strip() for line in output.split("\n")]
-        assert ["3 line:", "2 line:", "3 line: Key Error"] == output
-
-        repr(first_error)
-        text_type(first_error)
+        assert list(error_to_check) == ['4 line', '2 line', '3 line', 'KeyError']
 
     @pytest.mark.parametrize("input_", (
         2, 2.0, [1], {"1": 1}, (1,),

@@ -6,6 +6,8 @@ from __future__ import unicode_literals
 import sys
 import re
 
+import pep3134
+
 from six import iteritems, string_types
 
 from .exceptions import ItIsBullshitError
@@ -40,8 +42,9 @@ def raise_for_problem(suspicious, scheme):
     elif isinstance(scheme, FUNC_TYPE):
         raise_for_callable_problem(suspicious, scheme)
     else:
-        raise ItIsBullshitError(suspicious,
-                                "Scheme mismatch {0}".format(scheme))
+        cause = ValueError("Scheme mismatch {0}".format(scheme))
+        error = ItIsBullshitError(suspicious)
+        pep3134.raise_from(error, cause)
 
 
 def shallow_check(suspicious, scheme):
@@ -63,22 +66,27 @@ def raise_for_dict_problem(suspicious, scheme):
         raise TypeError("Dict scheme should contain at least 1 element")
 
     if not isinstance(suspicious, dict):
-        raise ItIsBullshitError(suspicious, "Type mismatch, should be a dict")
+        cause = ValueError("Type mismatch, should be a dict")
+        error = ItIsBullshitError(suspicious)
+        pep3134.raise_from(error, cause)
 
     for key, validator in iteritems(scheme):
         original_validator = validator
         if isinstance(validator, OrSkipped):
             original_validator = validator.validator
+
         if key not in suspicious:
             if not isinstance(validator, OrSkipped):
-                raise ItIsBullshitError(suspicious,
-                                        "Missed key {0}".format(key))
+                cause = ValueError("Missed key {0}".format(key))
+                error = ItIsBullshitError(suspicious)
+                pep3134.raise_from(error, cause)
         else:
             if suspicious[key] is not validator:
                 try:
                     raise_for_problem(suspicious[key], original_validator)
                 except ItIsBullshitError as err:
-                    raise ItIsBullshitError(suspicious, err)
+                    error = ItIsBullshitError(suspicious)
+                    pep3134.raise_from(error, err)
 
 
 def raise_for_list_problem(suspicious, scheme):
@@ -89,13 +97,16 @@ def raise_for_list_problem(suspicious, scheme):
         raise TypeError("List scheme should contain only 1 element")
 
     if not isinstance(suspicious, (tuple, list)):
-        raise ItIsBullshitError(suspicious,
-                                "Type mismatch, should be a list or a tuple")
+        cause = ValueError("Type mismatch, should be a list or a tuple")
+        error = ItIsBullshitError(suspicious)
+        pep3134.raise_from(error, cause)
+
     for item in suspicious:
         try:
             raise_for_problem(item, scheme[0])
         except ItIsBullshitError as err:
-            raise ItIsBullshitError(suspicious, err)
+            error = ItIsBullshitError(suspicious)
+            pep3134.raise_from(error, err)
 
 
 def raise_for_tuple_problem(suspicious, scheme):
@@ -111,29 +122,38 @@ def raise_for_tuple_problem(suspicious, scheme):
             error = err
     else:
         if error is not None:
-            raise ItIsBullshitError(suspicious, error)
+            final_error = ItIsBullshitError(suspicious)
+            pep3134.raise_from(final_error, error)
 
 
 def raise_for_string_problem(suspicious, scheme):
     if not isinstance(suspicious, string_types):
-        raise ItIsBullshitError(suspicious, "Should be a string")
+        cause = ValueError("Should be a string")
+        error = ItIsBullshitError(suspicious)
+        pep3134.raise_from(error, cause)
 
     # noinspection PyTypeChecker
     if re.match(scheme, suspicious, re.UNICODE) is None:
-        raise ItIsBullshitError(suspicious,
-                                "Regex mismatch: {0}".format(scheme))
+        cause = ValueError("Regex mismatch: {0}".format(scheme))
+        error = ItIsBullshitError(suspicious)
+        pep3134.raise_from(error, cause)
 
 
 def raise_for_float_problem(suspicious, scheme):
     if not isinstance(suspicious, float):
-        raise ItIsBullshitError(suspicious, "Should be a float")
+        cause = ValueError("Should be a float")
+        error = ItIsBullshitError(suspicious)
+        pep3134.raise_from(error, cause)
 
     if abs(suspicious - scheme) >= sys.float_info.epsilon:
-        raise ItIsBullshitError(suspicious, "Should be {0}".format(scheme))
+        cause = ValueError("Should be {0}".format(scheme))
+        error = ItIsBullshitError(suspicious)
+        pep3134.raise_from(error, cause)
 
 
 def raise_for_callable_problem(suspicious, validator):
     try:
         validator(suspicious)
     except Exception as err:
-        raise ItIsBullshitError(suspicious, err)
+        error = ItIsBullshitError(suspicious)
+        pep3134.raise_from(error, err)

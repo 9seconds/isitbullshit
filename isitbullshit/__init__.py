@@ -17,10 +17,7 @@ from .testcase_mixin import IsItBullshitMixin  # NOQA
 # silence for pyflakes
 assert isitbullshit
 assert raise_for_problem
-
 assert ItIsBullshitError
-
 assert WHATEVER
 assert OrSkipped
-
 assert IsItBullshitMixin
