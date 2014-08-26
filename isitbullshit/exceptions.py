@@ -30,7 +30,8 @@ class ItIsBullshitError(ValueError):
         if len(lines) == 1:
             return lines[0]
 
-        with contextlib.closing(moves.cStringIO()) as buf:
+        buffer_io = moves.cStringIO()  # pylint: disable=E1101
+        with contextlib.closing(buffer_io) as buf:
             for indent_level, line in enumerate(lines):
                 if indent_level == len(lines) - 1:
                     buf.write(" ")

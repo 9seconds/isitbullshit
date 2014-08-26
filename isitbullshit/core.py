@@ -154,6 +154,6 @@ def raise_for_float_problem(suspicious, scheme):
 def raise_for_callable_problem(suspicious, validator):
     try:
         validator(suspicious)
-    except Exception as err:
+    except Exception as err:  # pylint: disable=W0703
         error = ItIsBullshitError(suspicious)
         pep3134.raise_from(error, err)
