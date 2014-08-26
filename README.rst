@@ -449,7 +449,8 @@ Python3, let's check an example.
         {'baz': 2}:
             2: Scheme mismatch <type 'str'>
 
-Quite clear and nice.
+Quite clear and nice. If you want just to extract a pure message lines, iterate ``ItIsBullshitError`` and
+you are good.
 
 
 
