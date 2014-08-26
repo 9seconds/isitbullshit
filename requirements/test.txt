@@ -1,0 +1,4 @@
+# Test requirements for isitbullshit
+
+pytest==2.6.1
+pytest-cov==1.7.0
