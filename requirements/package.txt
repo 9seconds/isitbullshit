@@ -1,3 +1,4 @@
 # Requirements for isitbullshit
 
 six
+pep3134<0.2
