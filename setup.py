@@ -38,7 +38,8 @@ class PyTest(test):
 
 setup(
     name="isitbullshit",
-    description="Small library for verifying parsed JSONs if they are bullshit or not",
+    description=("Small library for verifying parsed JSONs "
+                 "if they are bullshit or not"),
     long_description=LONG_DESCRIPTION,
     version="0.2.1",
     author="Sergey Arkhipov",

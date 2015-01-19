@@ -13,7 +13,7 @@ import unittest
 import pep3134
 import pytest
 
-from six import moves, text_type, string_types, iteritems
+from six import moves, text_type, string_types, iteritems  # noqa
 
 from isitbullshit import isitbullshit, raise_for_problem, IsItBullshitMixin, \
     ItIsBullshitError, WHATEVER, OrSkipped
@@ -233,7 +233,8 @@ class TestBullsit(object):
             except ItIsBullshitError as err:
                 error_to_check = err
 
-        assert list(error_to_check) == ['4 line', '2 line', '3 line', 'KeyError']
+        assert list(error_to_check) == ['4 line', '2 line', '3 line',
+                                        'KeyError']
 
     @pytest.mark.parametrize("input_", (
         2, 2.0, [1], {"1": 1}, (1,),
@@ -336,6 +337,7 @@ class TestREADME(object):
                 }
             }
         """
+
         def rate_validator(value):
             if not (1 <= int(value) <= 5):
                 raise ValueError(
@@ -435,7 +437,9 @@ class TestREADME(object):
 
         positive(schema, schema)
 
-        stripped_schema = dict((k, v) for k, v in iteritems(schema) if k != "baz")
+        stripped_schema = dict(
+            (k, v) for k, v in iteritems(schema) if k != "baz"
+        )
         positive(schema, stripped_schema)
         raise_for_problem(stripped_schema, schema)
 
