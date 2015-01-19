@@ -26,7 +26,3 @@ after_success:
 notifications:
   email:
     - nineseconds@yandex.ru
-
-matrix:
-  allow_failures:
-    - python: "pypy3"  # because of pep3134
