@@ -6,6 +6,9 @@ prospector==0.5.6
 # Testing for different python versions
 tox==1.7.2
 
+# Flake8
+flake8>=2.3.0
+
 # It is always good to have it in the virtualenv
 # if you want to avoid this annoying message on the start
 ipython==2.2.0
